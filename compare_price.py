@@ -13,6 +13,8 @@ def compare_price_tables(file_path_prices, file_path_packages):
             return 0
         elif value == "\\":
             return None
+        elif value == "/":
+            return None
         else:
             return value
 
