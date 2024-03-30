@@ -36,7 +36,18 @@ def compare_price_tables(file_path_prices, file_path_packages):
 
     filtered_mismatches = merged_df[~(merged_df['男性_匹配'] & merged_df['未婚女性_匹配'] & merged_df['已婚女性_匹配'])]
 
-    return filtered_mismatches
+    merged_df = pd.merge(
+        df_prices[['项目名称', '男性', '未婚女性', '已婚女性']],
+        df_packages[['项目名称', '男性', '未婚女性', '已婚女性']],
+        on='项目名称',
+        how='outer',
+        indicator=True,
+        suffixes=('_价格表', '_套餐表')
+    )
+
+    missing_in_packages = merged_df.loc[merged_df['_merge'] == 'right_only', '项目名称']
+
+    return filtered_mismatches, missing_in_packages.tolist()
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -46,7 +57,13 @@ if __name__ == "__main__":
     file_path_prices = sys.argv[1]
     file_path_packages = sys.argv[2]
 
-    mismatches = compare_price_tables(file_path_prices, file_path_packages)
+    mismatches, missing = compare_price_tables(file_path_prices, file_path_packages)
 
+    print(mismatches)
 
-    print(tabulate(mismatches, headers='keys', tablefmt='psql', showindex=False))
+    print(missing)
+    # print(tabulate(mismatches, headers='keys', tablefmt='psql', showindex=False))
+    #
+    # print("\n--------------------------------------------------------\n")
+    #
+    # print(tabulate())
