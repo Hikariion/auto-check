@@ -61,9 +61,6 @@ if __name__ == "__main__":
 
     print(mismatches)
 
+    print("\n--------------------------- 无法匹配的项目 --------------------------------\n")
+
     print(missing)
-    # print(tabulate(mismatches, headers='keys', tablefmt='psql', showindex=False))
-    #
-    # print("\n--------------------------------------------------------\n")
-    #
-    # print(tabulate())
