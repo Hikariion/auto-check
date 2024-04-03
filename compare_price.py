@@ -1,7 +1,6 @@
 import pandas as pd
 import sys
-from tabulate import tabulate
-from tqdm import tqdm
+from termcolor import colored
 
 def compare_price_tables(file_path_prices, file_path_packages):
     # Load the uploaded Excel files
@@ -50,6 +49,46 @@ def compare_price_tables(file_path_prices, file_path_packages):
 
     return filtered_mismatches, missing_in_packages.tolist()
 
+def can_convert_to_float(s):
+    # 检查字符串是否是"NaN"
+    if s.lower() == "nan":
+        return False
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def print_mismatches(mismatches):
+    # 定义表头和列的宽度
+    headers = mismatches.columns.tolist()
+    print(colored(' | '.join(headers), 'cyan'))  # 打印表头
+
+    # 遍历每一行打印
+    for index, row in mismatches.iterrows():
+        row_data = []
+        is_mismatch = False  # 标记是否有不匹配的数据
+        for col in headers:
+            value = row[col]
+            row_data.append(str(value))
+
+        # 如果有不匹配的数据，则标记为True
+        t = 0
+        for value in row_data:
+            if can_convert_to_float(value):
+                if t == 0:
+                    t = float(value)
+                else:
+                    if t != float(value):
+                        is_mismatch = True
+                        break
+
+        # 如果有不匹配的数据，则整行标记为黄色，否则为默认颜色
+        if is_mismatch:
+            print(colored(' | '.join(row_data), 'yellow'))
+        # else:
+        #     print(' | '.join(row_data))
+
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python compare_price.py <path_to_prices_table> <path_to_packages_table>")
@@ -60,7 +99,7 @@ if __name__ == "__main__":
 
     mismatches, missing = compare_price_tables(file_path_prices, file_path_packages)
 
-    print(mismatches)
+    print_mismatches(mismatches)
 
     print("\n--------------------------- 无法匹配的项目 --------------------------------\n")
 
