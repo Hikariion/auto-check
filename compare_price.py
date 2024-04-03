@@ -1,6 +1,7 @@
 import pandas as pd
 import sys
 from tabulate import tabulate
+from tqdm import tqdm
 
 def compare_price_tables(file_path_prices, file_path_packages):
     # Load the uploaded Excel files
@@ -19,26 +20,26 @@ def compare_price_tables(file_path_prices, file_path_packages):
             return value
 
     # Apply the normalization function to relevant columns in both dataframes
-    for column in ['男性', '未婚女性', '已婚女性']:
+    for column in ['男通用', '女未婚', '女已婚']:
         df_prices[column] = df_prices[column].apply(normalize_value)
         df_packages[column] = df_packages[column].apply(normalize_value)
 
     # Merge the two dataframes on '项目名称' for comparison
-    merged_df = pd.merge(df_packages[['项目名称', '男性', '未婚女性', '已婚女性']],
-                         df_prices[['项目名称', '男性', '未婚女性', '已婚女性']],
+    merged_df = pd.merge(df_packages[['项目名称', '男通用', '女未婚', '女已婚']],
+                         df_prices[['项目名称', '男通用', '女未婚', '女已婚']],
                          on='项目名称',
                          suffixes=('_套餐表', '_价格表'))
 
     # Check if values match across the dataframes for each category
-    merged_df['男性_匹配'] = merged_df['男性_套餐表'] == merged_df['男性_价格表']
-    merged_df['未婚女性_匹配'] = merged_df['未婚女性_套餐表'] == merged_df['未婚女性_价格表']
-    merged_df['已婚女性_匹配'] = merged_df['已婚女性_套餐表'] == merged_df['已婚女性_价格表']
+    merged_df['男通用_匹配'] = merged_df['男通用_套餐表'] == merged_df['男通用_价格表']
+    merged_df['女未婚_匹配'] = merged_df['女未婚_套餐表'] == merged_df['女未婚_价格表']
+    merged_df['女已婚_匹配'] = merged_df['女已婚_套餐表'] == merged_df['女已婚_价格表']
 
-    filtered_mismatches = merged_df[~(merged_df['男性_匹配'] & merged_df['未婚女性_匹配'] & merged_df['已婚女性_匹配'])]
+    filtered_mismatches = merged_df[~(merged_df['男通用_匹配'] & merged_df['女未婚_匹配'] & merged_df['女已婚_匹配'])]
 
     merged_df = pd.merge(
-        df_prices[['项目名称', '男性', '未婚女性', '已婚女性']],
-        df_packages[['项目名称', '男性', '未婚女性', '已婚女性']],
+        df_prices[['项目名称', '男通用', '女未婚', '女已婚']],
+        df_packages[['项目名称', '男通用', '女未婚', '女已婚']],
         on='项目名称',
         how='outer',
         indicator=True,
